@@ -27,10 +27,10 @@
     "application/json"
   ],
   "paths": {
-    "/api/account/signup": {
+    "/api/v1.1/auth/signup": {
       "post": {
         "tags": [
-            "User"
+            "Auth"
         ],
         "description": "Utilizado para la creación de los usuarios, el rol como default es 'Owner' corresponde a dueño de restaurant. La contraseña se almacena encriptada con el algoritmo sha256",
         "parameters": [
@@ -69,10 +69,10 @@
         }
       }
     },
-    "/api/auth/resetpassword": {
+    "/api/v1.1/auth/resetpassword": {
       "put": {
         "tags": [
-            "User"
+            "Auth"
         ],
         "description": "Utilizado para restablecer la contraseña del usuario.",
         "parameters": [
@@ -102,13 +102,46 @@
         }
       }
     },
-    "/api/account/login": {
+    "/api/v1.1/auth/refresh": {
+      "put": {
+        "tags": [
+            "Auth"
+        ],
+        "description": "Utilizado para refrescar accesstoken vencido.",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "headers",
+            "schema": {
+              "type": "object",
+              "properties": {
+                  "refreshToken": {
+                    "example": "eyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Se retorna nuevo access token y refreshtoken. Se destruye refreshtoken anterior."
+          },
+          "400": {
+            "description": "Solicitud Incorrecta."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1.1/auth/login": {
       "post": {
         "tags": [
-            "User"
+            "Auth"
         ],
         "description": [
-          "Retorna el access token para seguir consumiendo la API. El Access Token (JWT), expira en cuatro horas"
+          "Retorna el access token para seguir consumiendo la API. El Access Token (JWT), expira en 8 dias. Ademas retorna un refresh Token"
         ],
         "parameters": [
           {
@@ -129,7 +162,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Access Granted. Retorna el access token"
+            "description": "Access Granted. Retorna el access token y refresh"
           },
           "401": {
             "description": "Access Denied"
@@ -137,13 +170,44 @@
         }
       }
     },
-    "/api/account/favorites": {
+    "/api/v1.1/account/favorites": {
       "get": {
         "tags": [
-            "client"
+            "User"
         ],
         "description": [
           "Retorna todos los restaurantes favoritos del usuario"
+        ],
+        "parameters": [ {
+          "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                  "id": {
+                    "example": "632790b09a177afbfd6fe6ea"
+                  }
+              }
+            }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "Json de Restaurantes Favoritos",
+            "body" :{"favorites": ["632790b09a177afbfd6fe6ea","6326590b09a177afbfd6fe6ea"]}
+          },
+          "204": {
+            "description": "No contiene restaurantes como favoritos",
+            "example" : {"favorites": []}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+            "User"
+        ],
+        "description": [
+          "Agrega ids de restaraurantes favoritos"
         ],
         "parameters": [ {
           "name": "obj",
@@ -170,22 +234,18 @@
         }
       }
     },
-    "/api/restaurant": {
+    "/api/v1.1/review": {
       "get": {
         "tags": [
-          "User"
+          "Review"
       ],
         "security": [{
           "JWT": ["access_token"]
         }],
-        "description": "Trae todos los restaurantes del usuario (dueño).",
-        "parameters": [
-          "id"
-        ],
+        "description": "Trae todas las reviews.",
         "responses": {
           "200": {
-            "description": "Devuelve un listado de objetos Restaurantes."
-
+            "description": "Devuelve un json de objetos Reviews."
           },
           "202": {
             "description": "No tiene restaurantes disponibles"
@@ -196,7 +256,158 @@
         }
       }     
     },
-    "/api/restaurant/:id": {
+    "/api/v1.1/review/:id": {
+      "put": {
+        "tags": [
+          "Review"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Actualiza la informacion de la review .",
+        "parameters": [
+         "body: {id, propiedad a cambiar}"
+        ],
+        "responses": {
+          "202": {
+            "description": "Actualiza la informacion."
+          },
+          "404": {
+            "description": "Review no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      
+      },
+      "get": {
+        "tags": [
+          "User"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae la informacion de la review en especifico en formato de json.",
+        "parameters": [
+         "{id}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Trae la informacion de la review en especifico en formato de json."
+          },
+          "404": {
+            "description": "Review no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Elimina la review",
+        "parameters": [
+          "id"
+        ],
+        "responses": {
+          "202": {
+            "description": "Eliminado, no retorna informacion."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1.1/restaurant": {
+      "get": {
+        "tags": [
+          "Restaurant"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae todos los restaurantes.",
+        "parameters": [
+          "id"
+        ],
+        "responses": {
+          "200": {
+            "description": "Devuelve un json de objetos Restaurantes."
+
+          },
+          "202": {
+            "description": "No tiene restaurantes disponibles"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+            "Restaurant"
+        ],
+        "description": "Utilizado para la creación de lo restaurant. se requiere rol de owner",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties":   {
+                "imageURL": "https://s3-us-east-1.amazonaws.com/resources/restaurants/large/foto.jpeg",
+                "mediumImageURL": "https://s3-us-east-1.amazonaws.com/resources/restaurants/medium/foto.jpeg",
+                "thumbnailImageURL": "https://s3-us-east-1.amazonaws.com/resources/restaurants/thumbnail/foto.jpeg",
+                "name": "nombre del restaurant",
+                "stars": 5,
+                "location": {
+                  "coordinates": [-54.14, -54.14],
+                  "address": "De los baqueanos 170"
+                },
+                "operatingHours": {
+                    "mon":
+                        {
+                        "open": "17:00", 
+                        "close": "00:00" 
+                      },
+                      "tue":
+                        {
+                        "open": "17:00", 
+                        "close": "00:00" 
+                      }
+                },
+                "isClosed": true,
+                "pricesRange": "$",
+                "isCeliac": false,
+                "isVeggie": false,
+                "description": "Lo mejor",
+                "dishesTypes": "Comida China"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restaurant creado de forma correcta."
+          },
+          "400": {
+            "description": "Solicitud Incorrecta."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+    "/api/v1.1/restaurant/:id": {
       "put": {
         "tags": [
           "User"
@@ -231,7 +442,7 @@
         }],
         "description": "Trae la informacion del restaurant especifico en formato de json.",
         "parameters": [
-         "body: {id}"
+         "{id}"
         ],
         "responses": {
           "200": {
@@ -266,11 +477,177 @@
           }
         }
       }
-    }      
+    },
+    "/api/v1.1/restaurant/:id/menu": {
+      "get": {
+        "tags": [
+          "Restaurant"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae el menu en formato de json.",
+        "parameters": [
+         "{id}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Trae  el menu del restaurant especifico en formato de json."
+          },
+          "404": {
+            "description": "Restaurant no encontrado/menu no encontradp"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      }
+    },
+    "/api/v1.1/restaurant/:id/review": {
+      "get": {
+        "tags": [
+          "Review"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae las review del restaurant en formato de json.",
+        "parameters": [
+         "{id}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Trae  las review del restaurant  especifico en formato de json."
+          },
+          "404": {
+            "description": "Restaurant no encontrado/review no encontradp"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      }
+    }  ,
+    "/api/v1.1/dish/:id": {
+      "put": {
+        "tags": [
+          "Dish"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Actualiza la informacion del plato .",
+        "parameters": [
+         "body: {id, propiedad a cambiar}"
+        ],
+        "responses": {
+          "202": {
+            "description": "Actualiza la informacion."
+          },
+          "404": {
+            "description": "plato no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      
+      },
+      "get": {
+        "tags": [
+          "Dish"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae la informacion del plato especifico en formato de json.",
+        "parameters": [
+         "{id}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Trae la informacion del plato especifico en formato de json."
+          },
+          "404": {
+            "description": "plato no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      },
+      "delete": {
+        "tags": [
+          "Dish"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Elimina el plato",
+        "parameters": [
+          "id"
+        ],
+        "responses": {
+          "202": {
+            "description": "Eliminado, no retorna informacion."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1.1/dish": {
+      "get": {
+        "tags": [
+          "Dish"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae todos los platos.",
+        "responses": {
+          "200": {
+            "description": "Devuelve un json de objetos Dish."
+
+          },
+          "202": {
+            "description": "No tiene Dish disponibles"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+            "Dish"
+        ],
+        "description": "Utilizado para la creación de lo platos. se requiere rol de owner",
+        "parameters": [
+          {}
+        ],
+        "responses": {
+          "200": {
+            "description": "Plato creado de forma correcta."
+          },
+          "400": {
+            "description": "Solicitud Incorrecta."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }           
+    }
 },
   "definitions": {},
   "contact": {
     "name": "Equipo 5",
     "url": "https://morfando-uade.com"
   }
-}
+}}

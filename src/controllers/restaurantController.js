@@ -48,7 +48,7 @@ exports.getReview = async (req,res) => {
   }
 };
 
-const _filterRestaurantsBasedDistance = (
+const _filterRestaurantsByDistance = (
   restaurants,
   maxDistance,
   userLocation
@@ -75,7 +75,7 @@ const _filterRestaurantsBasedDistance = (
 const _getAllNearestRestaurants = async (maxDistance, userLocation) => {
   const allRestaurants = await RestaurantDAO.readAll();
 
-  const restaurants = _filterRestaurantsBasedDistance(
+  const restaurants = _filterRestaurantsByDistance(
     allRestaurants,
     maxDistance,
     userLocation
@@ -100,7 +100,7 @@ const _filteredRestaurantsBasedDishType = async (
     id: item.restaurants[0]._id
   }));
 
-  const restaurants = _filterRestaurantsBasedDistance(
+  const restaurants = _filterRestaurantsByDistance(
     restaurantsParsed,
     maxDistance,
     userLocation

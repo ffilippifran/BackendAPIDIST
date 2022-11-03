@@ -3,7 +3,7 @@ const environment = require("../config/enviroment");
 
 function _connectDB(){
     
-    mongoose.connect("mongodb://localhost:27017",{useNewUrlParser: true, useUnifiedTopology: true})
+    mongoose.connect(process.env.DB,{useNewUrlParser: true, useUnifiedTopology: true})
         .then(
             () => {
                 console.log("connection db ready to use");
