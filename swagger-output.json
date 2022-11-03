@@ -1,0 +1,276 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Documentación API - Aplicaciones Distribuidas",
+    "Description": "Documentación para consumir la API",
+    "description": ""
+  },
+  "securityDefinitions": {
+   "JWT": {
+        "type": "apiKey",
+        "name": "access_token",
+        "in": "header"
+    }
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "tags": [],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/account/signup": {
+      "post": {
+        "tags": [
+            "User"
+        ],
+        "description": "Utilizado para la creación de los usuarios, el rol como default es 'Owner' corresponde a dueño de restaurant. La contraseña se almacena encriptada con el algoritmo sha256",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                  "email": {
+                    "example": "fran.filippi@hotmail.com"
+                  },
+                  "password": {
+                    "example": "C0ntr4s3ñ4!!"
+                  },
+                  "lastName": {
+                    "example": "Filippi Farmar"
+                  },
+                  "firstName": {
+                    "example": "Franco"
+                  }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario creado de forma correcta."
+          },
+          "400": {
+            "description": "Solicitud Incorrecta."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/auth/resetpassword": {
+      "put": {
+        "tags": [
+            "User"
+        ],
+        "description": "Utilizado para restablecer la contraseña del usuario.",
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                  "email": {
+                    "example": "fran.filippi@hotmail.com"
+                  }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Se envia correo con las instrucciones a seguir."
+          },
+          "400": {
+            "description": "Solicitud Incorrecta."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/account/login": {
+      "post": {
+        "tags": [
+            "User"
+        ],
+        "description": [
+          "Retorna el access token para seguir consumiendo la API. El Access Token (JWT), expira en cuatro horas"
+        ],
+        "parameters": [
+          {
+            "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "fran.filippi@hotmail.com"
+                },
+                "password": {
+                  "example": "C0ntr4s3ñ4!!"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access Granted. Retorna el access token"
+          },
+          "401": {
+            "description": "Access Denied"
+          }
+        }
+      }
+    },
+    "/api/account/favorites": {
+      "get": {
+        "tags": [
+            "client"
+        ],
+        "description": [
+          "Retorna todos los restaurantes favoritos del usuario"
+        ],
+        "parameters": [ {
+          "name": "obj",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                  "id": {
+                    "example": "632790b09a177afbfd6fe6ea"
+                  }
+              }
+            }
+        }
+        ],
+        "responses": {
+          "200": {
+            "description": "Json de Restaurantes",
+            "body" :{"favorites": ["632790b09a177afbfd6fe6ea","6326590b09a177afbfd6fe6ea"]}
+          },
+          "204": {
+            "description": "No contiene restaurantes como favoritos",
+            "example" : {"favorites": []}
+          }
+        }
+      }
+    },
+    "/api/restaurant": {
+      "get": {
+        "tags": [
+          "User"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae todos los restaurantes del usuario (dueño).",
+        "parameters": [
+          "id"
+        ],
+        "responses": {
+          "200": {
+            "description": "Devuelve un listado de objetos Restaurantes."
+
+          },
+          "202": {
+            "description": "No tiene restaurantes disponibles"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }     
+    },
+    "/api/restaurant/:id": {
+      "put": {
+        "tags": [
+          "User"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Actualiza la informacion del restaurant .",
+        "parameters": [
+         "body: {id, propiedad a cambiar}"
+        ],
+        "responses": {
+          "202": {
+            "description": "Actualiza la informacion."
+          },
+          "404": {
+            "description": "Restaurant no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      
+      },
+      "get": {
+        "tags": [
+          "User"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Trae la informacion del restaurant especifico en formato de json.",
+        "parameters": [
+         "body: {id}"
+        ],
+        "responses": {
+          "200": {
+            "description": "Trae la informacion del restaurant especifico en formato de json."
+          },
+          "404": {
+            "description": "Restaurant no encontrado."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+          
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+      ],
+        "security": [{
+          "JWT": ["access_token"]
+        }],
+        "description": "Elimina el restaurant del usuario",
+        "parameters": [
+          "id"
+        ],
+        "responses": {
+          "202": {
+            "description": "Eliminado, no retorna informacion."
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }      
+},
+  "definitions": {},
+  "contact": {
+    "name": "Equipo 5",
+    "url": "https://morfando-uade.com"
+  }
+}
