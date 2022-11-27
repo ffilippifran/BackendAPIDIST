@@ -17,8 +17,8 @@ module.exports.signup = function (req, res){
     
     try{
         UserDAO.create(userObj)
-            .then(() => {
-                res.status(200).send({success: true, message: "Usuario creado de forma correcta."});
+            .then((user) => {
+                res.status(200).send({success: true, message: user});
             }).catch(error => res.status(202).send({success: false, error: error.message}))
     }
     catch(error){

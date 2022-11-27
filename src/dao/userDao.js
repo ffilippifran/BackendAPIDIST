@@ -111,16 +111,18 @@ exports.login = async (userInfo) => {
                 email: user.email,
                 role: user.role,
             }
-            let auth = {}
-            auth.accessToken = jwt.sign(Object.assign({},userObject),process.env.TOKEN_SECRET,{
+            
+            let data = {}
+            data.accessToken = jwt.sign(Object.assign({},userObject),process.env.TOKEN_SECRET,{
                   //El token posee una duración de 15 minutos.
                   expiresIn: "15m"
               }),
-            auth.refreshToken = jwt.sign(Object.assign({},userObject),process.env.RTOKEN_SECRET,{
+            data.refreshToken = jwt.sign(Object.assign({},userObject),process.env.RTOKEN_SECRET,{
                 //El refresh token posee una duración de 15 minutos.
                 expiresIn: "20m"
               })
-            return auth;
+            
+            return data;
         })
 }
 
