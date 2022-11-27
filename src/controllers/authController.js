@@ -37,8 +37,8 @@ module.exports.login = function(req, res){
     
     try{
         UserDAO.login(req.body)
-            .then(tokens => {
-                res.status(200).send({success: true, tokens});
+            .then(data => {
+                res.status(200).send({success: true, data});
             }).catch(error => res.status(403).send({success: false, error: error.message}))
     }catch(error){
         res.status(402).send({success: false, error: error.message})
