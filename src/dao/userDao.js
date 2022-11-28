@@ -121,7 +121,10 @@ exports.login = async (userInfo) => {
                 //El refresh token posee una duración de 15 minutos.
                 expiresIn: "20m"
               })
-            
+            data.firstName = user.firstName
+            data.lastName = user.lastName
+            data.email = user.email
+            data.role = user.role
             return data;
         })
 }
