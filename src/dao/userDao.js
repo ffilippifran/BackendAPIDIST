@@ -130,6 +130,7 @@ exports.login = async (userInfo) => {
 }
 
 
+
 exports.getFavorites = async (id) => {
   return this.findById(id)
       .then(user => {
@@ -138,5 +139,7 @@ exports.getFavorites = async (id) => {
               favorites : user.favorites
           };
       })
+
 }
+
 

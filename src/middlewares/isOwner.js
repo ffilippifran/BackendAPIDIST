@@ -1,12 +1,12 @@
 const jwt = require("jsonwebtoken");
 
 function isOwner(req, res, next){
-    const access_token = req.headers.Authorization;
+    const access_token = req.headers['authorization'];
     if(!access_token) return res.status(403).send({ success: false, message: 'Acceso denegado'})
 
     const user = _decodedToken(access_token);
     if(!user) return res.status(403).send({ success: false, message: 'Acceso denegado'})
-    if (user.role !== 'Owner') {
+    if (user.role !== 'owner') {
         return res.status(403).send({ success: false, message: 'Acceso denegado'})
     }
     else{
@@ -21,7 +21,7 @@ function _decodedToken(token){
     
     try{
         var user = jwt.verify(token,process.env.TOKEN_SECRET);
-        
+        console.log(user)
     }catch(error){
         console.log(error.message);
     }
