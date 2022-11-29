@@ -154,6 +154,7 @@ exports.getFavorites = async (id) => {
   return User.findById(id)
       .then(user => {
           return {
+              id: user._id,
               favorites: user.favorites
           };
       })
