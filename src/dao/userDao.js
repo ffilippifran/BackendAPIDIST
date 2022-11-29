@@ -69,10 +69,10 @@ exports.delete = async id => {
 };
 
 exports.findUserById = async (id) => {
-    return User.findById(id)
+    return User.findOne(id)
         .then(user => {
             return {
-                id: user.id,
+                _id: user._id,
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,

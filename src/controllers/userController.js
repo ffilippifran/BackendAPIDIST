@@ -82,8 +82,7 @@ exports.delete = async (req, res, next) => {
 module.exports.getfavorites = async (req, res, next) => {
     try {
         
-        const { id } = req.params;
-        const user = await UserDAO.getFavorites(id);
+        const user = await UserDAO.getFavorites(req.user._id);
         
         if (user) {
           
@@ -103,8 +102,9 @@ module.exports.getfavorites = async (req, res, next) => {
 }
 
 module.exports.addfavorites = async function(req, res){
-    if(!req.body.email && !req.body.restaurant) return res.status(400).send({success: false, error: "Solicitud Incorrecta"});
-    const user =  await UserDAO.findUserByEmail(req.body.email)
+    if(!req.body.restaurant) return res.status(400).send({success: false, error: "Solicitud Incorrecta"});
+    console.log(req.user._id)
+    const user =  await UserDAO.findUserById(req.user.id)
 
     if(user.favorites.includes(req.body.restaurant)){
       const favorites = await UserDAO.removeFavorites(user._id,req.body.restaurant)

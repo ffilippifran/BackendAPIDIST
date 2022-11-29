@@ -6,7 +6,7 @@ const { isAuthenticated } = require('../middlewares/index');
 
 
 
-router.post("/:id/favorites", isAuthenticated, userController.addfavorites);
-router.get('/:id/favorites', isAuthenticated, userController.getfavorites);
+router.post("/favorites", isAuthenticated, userController.addfavorites);
+router.get('/favorites', isAuthenticated, userController.getfavorites);
 
 module.exports = router;
