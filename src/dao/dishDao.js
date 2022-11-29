@@ -22,13 +22,13 @@ exports.readAll = async () => {
 
 exports.getMenu = async (id) => {
     try{
-      const menu = await Dish.findOne({
-        'restaurantID' : id
+       return await Dish.find({
+        restaurantID: id
       })
     }catch (err) {
       throw err;
     }
-    return Menu
+    
 };
 
 exports.readByType = async dishesTypes => {

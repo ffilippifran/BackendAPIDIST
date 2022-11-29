@@ -9,7 +9,7 @@ const MAX_DISHES_MENU = 10;
 
 
 exports.getMenu = async (req,res) => {
-  if(!req.params.id) res.status(00).send({success: false, error: "Solicitud incorrecta, id obligatorio"});
+  if(!req.params.id) res.status(400).send({success: false, error: "Solicitud incorrecta, id obligatorio"});
   try{
     if(req.params.dishType != null){
       const dishByType = allDishes.filter(
@@ -17,7 +17,8 @@ exports.getMenu = async (req,res) => {
       );
     }
 
-    const menu =  DishDAO.getMenu(req.params.id)
+    const menu =  await DishDAO.getMenu(req.params.id)
+    console.log(req.params.id,menu)
     if(menu){
       return res.status(200).send({success: true, menu: menu});
     }else{
@@ -184,7 +185,7 @@ exports.readById = async (req, res, next) => {
     return res.status(200).json({
       restaurant: {
         ...restaurantFromDB._doc,
-        id: restaurantFromDB._doc._id,
+        id: restaurantFromDB._id,
         distance: distanceBetweenCoordinates,
         isOpen
       },

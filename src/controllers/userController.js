@@ -81,11 +81,12 @@ exports.delete = async (req, res, next) => {
 
 module.exports.getfavorites = async (req, res, next) => {
     try {
+        
         const { id } = req.params;
-    
         const user = await UserDAO.getFavorites(id);
-    
+        
         if (user) {
+          
           return res.status(200).send({
             user
           });
@@ -101,12 +102,20 @@ module.exports.getfavorites = async (req, res, next) => {
       }
 }
 
-module.exports.addfavorites = function(req, res){
-    if(!req.user) return res.status(204).send({success: true, data: {user: null}});
-    const User = getModelByName('user');
-    return User.findUserByEmail(req.user.email)
-        .then(user => {
-            //user.addfavorites()
-            res.status(200).send({success: true, data: {user}});
-        }).catch(err => res.status(200).send({success: false, error: err.message}));
+module.exports.addfavorites = async function(req, res){
+    if(!req.body.email && !req.body.restaurant) return res.status(400).send({success: false, error: "Solicitud Incorrecta"});
+    const user =  await UserDAO.findUserByEmail(req.body.email)
+
+    if(user.favorites.includes(req.body.restaurant)){
+      const favorites = await UserDAO.removeFavorites(user._id,req.body.restaurant)
+      return res.status(200).send({
+        favorites
+      });
+    }
+    else{
+      const favorites = await UserDAO.addFavorites(user._id,req.body.restaurant)
+      return res.status(200).send({
+        favorites
+      });
+    }
 }

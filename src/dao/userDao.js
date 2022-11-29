@@ -125,18 +125,36 @@ exports.login = async (userInfo) => {
             data.lastName = user.lastName
             data.email = user.email
             data.role = user.role
+            data.uid = user._id
             return data;
         })
 }
 
+exports.addFavorites = async (id,favorite) => {
+  
+  return await User.findByIdAndUpdate(
+    { _id: id},
+    { $push: { favorites: favorite  } },
+    { upsert: true, new: true, runValidators: true }
+  )
+  
+}
 
+exports.removeFavorites = async (id,favorite) => {
+  
+  return await User.findByIdAndUpdate(
+    { _id: id},
+    { $pull: { favorites: favorite  } },
+    { upsert: true, new: true, runValidators: true }
+  )
+  
+}
 
 exports.getFavorites = async (id) => {
-  return this.findById(id)
+  return User.findById(id)
       .then(user => {
           return {
-              id: user.id,
-              favorites : user.favorites
+              favorites: user.favorites
           };
       })
 

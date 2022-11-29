@@ -36,8 +36,10 @@ const UserSchrema = mongoose.Schema({
         enum: ["owner",  "admin"]
     },
     favorites: {
-        type: [mongoose.Types.ObjectId],
-        default : null
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Review'
+        }],
     },
 });
 
