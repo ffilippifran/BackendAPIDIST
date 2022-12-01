@@ -18,7 +18,6 @@ function _verifyAuthToken(token){
     
     try{
         var user = jwt.verify(token,process.env.TOKEN_SECRET);
-        
     }catch(error){
         if(error.message == "jwt expired"){
             user = "jwt expired"

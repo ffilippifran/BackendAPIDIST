@@ -21,7 +21,7 @@ function _decodedToken(token){
     
     try{
         var user = jwt.verify(token,process.env.TOKEN_SECRET);
-        console.log(user)
+        
     }catch(error){
         console.log(error.message);
     }

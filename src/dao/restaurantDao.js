@@ -24,7 +24,8 @@ exports.readAll = async () => {
 
 exports.readById = async id => {
   try {
-    return await Restaurant.findById(id);
+    const restaurant = await Restaurant.findById(id);
+    return restaurant;
   } catch (err) {
     throw err;
   }
@@ -58,15 +59,13 @@ exports.readByDishType = async dishType => {
   }
 };
 
-exports.findByOwner = async (id) => {
+exports.findByOwner = async id => {
   try{
-    const restaurants = await Restaurant.findOne({
-      'ownerID' : id
-    })
+    return await Restaurant.find({'ownerID' : id})
   }catch (err) {
     throw err;
   }
-  return restaurants
+
 };
 
 exports.filterBasedDishesTypes = async types => {

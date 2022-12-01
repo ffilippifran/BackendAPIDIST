@@ -81,11 +81,9 @@ exports.delete = async (req, res, next) => {
 
 module.exports.getfavorites = async (req, res, next) => {
     try {
-        
         const user = await UserDAO.getFavorites(req.user._id);
-        
+
         if (user) {
-          
           return res.status(200).send({
             user
           });
@@ -101,10 +99,32 @@ module.exports.getfavorites = async (req, res, next) => {
       }
 }
 
+module.exports.checkFavorites = async (req, res, next) => {
+  try {
+      const user = await UserDAO.getFavorites(req.user._id);
+
+      if (user) {
+        if(user.favorites.includes(req.params.restid)){
+          return res.status(200).send(true);
+        }
+        else{
+          return res.status(200).send(false);
+        }
+      }
+  
+      return res.status(404).send({
+        message: "User Not Found"
+      });
+    } catch (error) {
+      return res.status(500).send({
+        error
+      });
+    }
+}
 module.exports.addfavorites = async function(req, res){
     if(!req.body.restaurant) return res.status(400).send({success: false, error: "Solicitud Incorrecta"});
-    console.log(req.user._id)
-    const user =  await UserDAO.findUserById(req.user.id)
+    console.log(req.user.email)
+    const user =  await UserDAO.findUserByEmail(req.user.email)
 
     if(user.favorites.includes(req.body.restaurant)){
       const favorites = await UserDAO.removeFavorites(user._id,req.body.restaurant)

@@ -11,7 +11,9 @@ router.get("/filter", isAuthenticated , RestaurantController.filter);
 router.get("/",isAuthenticated , RestaurantController.readAll);
 router.post("/", isOwner, RestaurantController.create);
 router.delete("/:id",isOwner, RestaurantController.delete);
+router.get("/my",isOwner,RestaurantController.getMyRestaurants)
 router.get("/:id", isAuthenticated , RestaurantController.readById);
 router.patch("/:id",isOwner,RestaurantController.update);
+
 
 module.exports = router;

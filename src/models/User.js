@@ -33,7 +33,7 @@ const UserSchrema = mongoose.Schema({
     role: {
         type: String,
         default: "owner",
-        enum: ["owner",  "admin"]
+        enum: ["owner",  "user"]
     },
     favorites: {
         type: [{

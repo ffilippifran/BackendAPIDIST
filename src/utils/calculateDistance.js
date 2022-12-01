@@ -12,7 +12,8 @@ const calculateDistanceBetweenTwoCoordinates = (firstCoordinate, secondCoordinat
 
   const haversinesOutterTerm = 2 * Math.atan2(Math.sqrt(haversinesInnerTerm), Math.sqrt(1 - haversinesInnerTerm));
   
-  const distance = EARTH_RADIUS * haversinesOutterTerm;
+  //distancia en metros
+  const distance = EARTH_RADIUS * haversinesOutterTerm * 1000;
 
   return distance;
 };

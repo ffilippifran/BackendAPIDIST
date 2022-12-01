@@ -133,7 +133,7 @@ const RestaurantSchema = new mongoose.Schema({
     }
   ],
   ownerID: {
-    type: Schema.Types.ObjectId, ref: 'User',
+    type: String,
     required: true
   },
   imageURL: {

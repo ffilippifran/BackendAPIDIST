@@ -69,6 +69,7 @@ exports.delete = async id => {
 };
 
 exports.findUserById = async (id) => {
+    console.log(id)
     return User.findOne(id)
         .then(user => {
             return {
@@ -114,12 +115,12 @@ exports.login = async (userInfo) => {
             
             let data = {}
             data.accessToken = jwt.sign(Object.assign({},userObject),process.env.TOKEN_SECRET,{
-                  //El token posee una duración de 15 minutos.
-                  expiresIn: "15m"
+                  //El token posee una duración de 8 horas.
+                  expiresIn: "8h"
               }),
             data.refreshToken = jwt.sign(Object.assign({},userObject),process.env.RTOKEN_SECRET,{
-                //El refresh token posee una duración de 15 minutos.
-                expiresIn: "20m"
+                //El refresh token posee una duración de 9 minutos.
+                expiresIn: "9h"
               })
             data.firstName = user.firstName
             data.lastName = user.lastName
@@ -131,7 +132,7 @@ exports.login = async (userInfo) => {
 }
 
 exports.addFavorites = async (id,favorite) => {
-  
+  console.log(id)
   return await User.findByIdAndUpdate(
     { _id: id},
     { $push: { favorites: favorite  } },
@@ -154,7 +155,6 @@ exports.getFavorites = async (id) => {
   return User.findById(id)
       .then(user => {
           return {
-              id: user._id,
               favorites: user.favorites
           };
       })

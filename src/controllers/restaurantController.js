@@ -130,7 +130,7 @@ const _handleDistanceBetweenUserAndRestaurant = (
     userLocation,
     restaurantLocation
   );
-
+  console.log(distance)
   return distance.toFixed(1);
 };
 
@@ -170,26 +170,13 @@ exports.readAll = async (req, res, next) => {
 
 exports.readById = async (req, res, next) => {
   try {
-    const { headers, params } = req;
-    const { id } = params;
-
+    const { id } = req.params;
     const restaurantFromDB = await RestaurantDAO.readById(id);
-    const distanceBetweenCoordinates = _handleDistanceBetweenUserAndRestaurant(
-      headers,
-      restaurantFromDB
-    );
-
-    const menu = await _getRestaurantMenu(restaurantFromDB.dishesTypes);
-    const isOpen = restaurantFromDB.isOpen
+    const menu = await DishDAO.getMenu(id);
 
     return res.status(200).json({
-      restaurant: {
-        ...restaurantFromDB._doc,
-        id: restaurantFromDB._id,
-        distance: distanceBetweenCoordinates,
-        isOpen
-      },
-      menu
+        restaurantFromDB,
+        menu
     });
   } catch (err) {
 
@@ -199,34 +186,17 @@ exports.readById = async (req, res, next) => {
   }
 };
 
-exports.readById = async (req, res, next) => {
+exports.getMyRestaurants = async (req, res, next) => {
+
   try {
-    const { headers, params } = req;
-    const { id } = params;
-
-    const restaurantFromDB = await RestaurantDAO.readById(id);
-    const distanceBetweenCoordinates = _handleDistanceBetweenUserAndRestaurant(
-      headers,
-      restaurantFromDB
-    );
-
-    const menu = await _getRestaurantMenu(restaurantFromDB.dishesTypes);
-    const isOpen = restaurantFromDB.isOpen
-
+    const restaurants = await RestaurantDAO.findByOwner(req.user._id);
     return res.status(200).json({
-      restaurant: {
-        ...restaurantFromDB._doc,
-        id: restaurantFromDB._doc._id,
-        distance: distanceBetweenCoordinates,
-        isOpen
-      },
-      menu
-    });
-  } catch (err) {
-    debug(err);
+      restaurants
+    }); 
+  }catch (err) {
 
     return res.status(500).json({
-      message: "Error when trying to Read Restaurant."
+      message: "Error when trying to Readss Restaurants."
     });
   }
 };
@@ -288,7 +258,6 @@ exports.delete = async (req, res, next) => {
 exports.getNearbyRestaurants = async (req, res, next) => {
   try {
     const { headers, query } = req;
-    const { dishesType } = query;
 
     if (!headers.userlatitude || !headers.userlongitude) {
       return res.status(400).json({
@@ -296,36 +265,30 @@ exports.getNearbyRestaurants = async (req, res, next) => {
       });
     }
 
-    const restaurantsFilteredByDishTypes = await RestaurantDAO.filterBasedDishesTypes(
-      [dishesType]
-    );
-
-    const restaurants = restaurantsFilteredByDishTypes
+    const allrestaurants = await RestaurantDAO.readAll();
+    const restaurants = allrestaurants
       .map(item => ({
-        ...item.restaurants[0],
-        id: item.restaurants[0]._id,
+        ...item,
+        id: item._id,
         location: {
-          latitude: item.restaurants[0].location.coordinates[0],
-          longitude: item.restaurants[0].location.coordinates[1]
+          latitude: item.location.coordinates[0],
+          longitude: item.location.coordinates[1]
         },
         distance: _handleDistanceBetweenUserAndRestaurant(
           headers,
-          item.restaurants[0]
+          item
         ),
-        isOpen: _getRandomNumber(1, 2) % 2 === 0
-      }))
+      })
       .sort((first, second) => {
         return first.distance - second.distance;
-      });
+      }))
 
     return res.status(200).json({
       restaurants: restaurants.slice(0, MAX_NEARBY_RESTAURANTS)
     });
   } catch (err) {
-    debug(err);
-
     return res.status(500).json({
-      message: "Error when trying to Read by Dishe Type."
+      message: "Error when trying to get distance."
     });
   }
 };
