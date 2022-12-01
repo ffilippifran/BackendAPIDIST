@@ -4,11 +4,11 @@ const authController = require('../controllers/authController');
 const { isRefreshToken } = require('../middlewares/index');
 
 
-
+router.post("/login/google",authController.loginGoogle);
 router.post('/signup', authController.signup);
 router.post('/resetpassword', authController.sendPasswordReset);
 router.post('/login', authController.login);
 router.post('/refresh', authController.refreshToken);
 router.post("/:userId/:token",authController.PasswordReset);
-//router.post("/login/google",authController.loginGoogle);
+
 module.exports = router;

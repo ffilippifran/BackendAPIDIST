@@ -31,6 +31,42 @@ exports.create = async data => {
         .then(userCreated => userCreated);
 };
 
+exports.create = async data => {
+
+  return await User.findOne({'email' : data.email})
+      .then(user => {
+        if(user) throw new Error('El usuario ya existe');
+        else{
+          const newUser = {
+              email: data.email,
+              password: bcrypt.hashSync(data.password, 9),
+              firstName: data.firstName,
+              lastName: data.lastName,
+          };
+          return User.create(newUser);
+        }
+      })
+      .then(userCreated => userCreated);
+};
+
+exports.createGoogle = async data => {
+
+  return await User.findOne({'email' : data.email})
+      .then(user => {
+        if(user) throw new Error('El usuario ya existe');
+        else{
+          const newUser = {
+              email: data.email,
+              password: bcrypt.hashSync(data.password, 9),
+              firstName: data.firstName,
+              lastName: data.lastName,
+              role: 'user'
+          };
+          return User.create(newUser);
+        }
+      })
+     .then(userCreated => userCreated);
+};
 
 exports.readAll = async () => {
   try {
@@ -95,14 +131,35 @@ exports.findUserByEmail = async (email) => {
                 favorites : user.favorites
             };
         })
+       
+}
+exports.findUserByEmailgoogle = async (email) => {
+
+  return User.findOne({email})
+      .then(user => {
+        if(user){
+          return {
+              _id: user._id,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              role: user.role,
+              favorites : user.favorites
+          };
+        }
+        else{
+          return false;
+        }
+      })
 }
 
 
-
 exports.login = async (userInfo) => {
+    console.log(userInfo)
     const email= userInfo.email;
     return User.findOne({email})
         .then(user => {
+            console.log(user)
             if(!user) throw new Error('Usuario o contraseña incorrectos');
             const validPassword = bcrypt.compareSync(userInfo.password, user.password);
             if(!validPassword) throw new Error('Usuario o contraseña incorrectos');
@@ -129,6 +186,38 @@ exports.login = async (userInfo) => {
             data.uid = user._id
             return data;
         })
+}
+
+exports.loginGoogle = async (userInfo) => {
+  const email= userInfo.email;
+  return User.findOne({email})
+      .then(user => {
+          if(!user) throw new Error('Usuario o contraseña incorrectos');
+          const validPassword = bcrypt.compareSync(userInfo.password, user.password);
+          if(!validPassword) throw new Error('Usuario o contraseña incorrectos');
+
+          const userObject = {
+              _id: user._id,
+              email: user.email,
+              role: user.role,
+          }
+          
+          let data = {}
+          data.accessToken = jwt.sign(Object.assign({},userObject),process.env.TOKEN_SECRET,{
+                //El token posee una duración de 8 horas.
+                expiresIn: "8h"
+            }),
+          data.refreshToken = jwt.sign(Object.assign({},userObject),process.env.RTOKEN_SECRET,{
+              //El refresh token posee una duración de 9 minutos.
+              expiresIn: "9h"
+            })
+          data.firstName = user.firstName
+          data.lastName = user.lastName
+          data.email = user.email
+          data.role = user.role
+          data.uid = user._id
+          return data;
+      })
 }
 
 exports.addFavorites = async (id,favorite) => {

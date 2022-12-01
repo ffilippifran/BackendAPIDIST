@@ -8,6 +8,7 @@ const TokenModel = require("../models/Token");
 const Joi = require('@hapi/joi');
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendMail");
+const User = require('../models/User');
 
 module.exports.signup = function (req, res){
     const userObj = req.body
@@ -45,23 +46,46 @@ module.exports.login = function(req, res){
     }    
 }
 
-module.exports.loginGoogle = function(req, res){
-    if(!req.body.email || !req.body.password){
-        return res.status(400).send({success: false, error: "Favor, la informacion del usuario es requerida."});
-    }
-    const { error } = _isValidLogin(req.body);
-    if (error) {
-        res.status(401).send({success: false, error: error.message})
+module.exports.loginGoogle = async function(req, res){
+    console.log(req.body.email)
+    let created = false
+    if(!req.body.email.includes("@gmail.com")){
+        return res.status(400).send({success: false, error: "Cuenta de Google incorrecta"});
     }
     
-    try{
-        UserDAO.login(req.body)
-            .then(data => {
-                res.status(200).send({success: true, data});
-            }).catch(error => res.status(403).send({success: false, error: error.message}))
-    }catch(error){
-        res.status(402).send({success: false, error: error.message})
-    }    
+    let user = await UserDAO.findUserByEmailgoogle(req.body.email)
+    const userObj = {
+        email: req.body.email,
+        password: process.env.PasswordGoogle,
+        role: 'user',
+        firstName: req.body.givenName,
+        lastName: req.body.familyName
+    }
+    console.log(user)
+    if(!user){
+        try{
+            await UserDAO.createGoogle(userObj)
+                .then((user) => {
+                    created = true
+                }).catch(error => res.status(202).send({success: false, error: error.message}))
+        }
+        catch(error){
+            res.status(500).send({success: false, error: error.message});
+        }
+       
+    }
+    user = await UserDAO.findUserByEmailgoogle(req.body.email)
+    console.log("llego aca")
+    if(user || created){
+        try{
+            await UserDAO.login(userObj)
+                .then(data => {
+                    res.status(200).send({success: true, data});
+                }).catch(error => res.status(403).send({success: false, error: error.message}))
+        }catch(error){
+            res.status(402).send({success: false, error: error.message})
+        }       
+    }
 }
 
 module.exports.refreshToken = function(req, res){
