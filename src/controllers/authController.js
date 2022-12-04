@@ -75,7 +75,6 @@ module.exports.loginGoogle = async function(req, res){
        
     }
     user = await UserDAO.findUserByEmailgoogle(req.body.email)
-    console.log("llego aca")
     if(user || created){
         try{
             await UserDAO.login(userObj)

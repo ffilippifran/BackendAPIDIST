@@ -18,6 +18,8 @@ app.use('/api/v1.1/restaurant', require('./routes/restaurantRouter'));
 app.use('/api/v1.1/review', require('./routes/reviewRouter'));
 app.use('/api/v1.1/account', require('./routes/userRouter'));
 app.use('/api/v1.1/dish', require('./routes/dishRouter'));
+app.use('/api/v1.1', require('./routes/appRouter'))
+
 
 var options = {
     swaggerOptions: {

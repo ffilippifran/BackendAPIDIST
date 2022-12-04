@@ -82,7 +82,7 @@ exports.delete = async (req, res, next) => {
 module.exports.getfavorites = async (req, res, next) => {
     try {
         const user = await UserDAO.getFavorites(req.user._id);
-
+        console.log(user)
         if (user) {
           return res.status(200).send({
             user
