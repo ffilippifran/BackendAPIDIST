@@ -1,4 +1,6 @@
 const UserDAO = require("../dao/userDao");
+const RestaurantDAO = require("../dao/restaurantDao");
+var mongoose = require('mongoose');
 
 exports.readAll = async (req, res, next) => {
   try {
@@ -80,15 +82,23 @@ exports.delete = async (req, res, next) => {
 
 
 module.exports.getfavorites = async (req, res, next) => {
+    let restos = []
     try {
         const user = await UserDAO.getFavorites(req.user._id);
-        console.log(user)
+        let favoritos = Object.values(user.favorites)
+        const lenght = favoritos.length
+
         if (user) {
-          return res.status(200).send({
-            user
-          });
+          for await(element of favoritos){
+            let id = element.trim()
+            id = await mongoose.mongo.ObjectId(id)
+            let restaurant = await RestaurantDAO.readById(id)
+            restos.push(await restaurant)
+            console.log("resto: ",restos)
+          };
+          return res.send(restos);
         }
-    
+     
         return res.status(404).send({
           message: "User Not Found"
         });

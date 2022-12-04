@@ -37,8 +37,7 @@ const UserSchrema = mongoose.Schema({
     },
     favorites: {
         type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Review'
+            type: String
         }],
     },
 });
